@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Planner</title>
+
+    <link rel="shortcut icon" href="./resources/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="app.js"></script>
+</head>
+
+<body>
+    <!-- Header mit Navbar -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#mealplan">Meal Planner</a>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#mealplan">Essensplan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#recipes">Rezepte</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Beginn des contents -->
+    <main role="main">
+        <!-- Bereich für Fehlermeldungen -->
+        <section id="error_out">
+        </section>
+
+        <section id="meal_section">
+
+            <!-- Filter zum Definieren der darzustellenden Informationen -->
+            <section id="filter_div" class="card">
+                <div class="card-body">
+                    <form class="form-inline">
+                        <label class="sr-only" for="filter_startdate">Beginn</label>
+                        <div class="input-group mb-2 mr-sm-2">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">Beginn</div>
+                            </div>
+                            <input type="date" class="form-control" id="filter_startdate" placeholder="Beginn">
+                        </div>
+
+                        <label class="sr-only" for="filter_enddate">Ende</label>
+                        <div class="input-group mb-2 mr-sm-2">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">Ende</div>
+                            </div>
+                            <input type="date" class="form-control" id="filter_enddate" placeholder="Enddatum">
+                        </div>
+
+                        <button type="submit" class="btn btn-secondary" id="filter_refresh_button">Refresh</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Bereich zum Anzeigen der ausgewählten Daten -->
+            <div class="container">
+                <div id="mealplan_data_out" class="row">
+                    <p>Es wurden keine Daten geladen</p>
+                </div>
+                <button type="button" class="btn btn-primary" id="new_item_button">Neuer Eintrag</button>
+            </div>
+        </section>
+
+        <!-- Form zum Erstellen eines neuen "Meals" -->
+        <section id="new_meal_section" class="hidden">
+            <div class="container">
+
+                <h5>Neuen Wochentag anlegen</h5>
+                <form autocomplete="off">
+                    <div class="form-group row">
+                        <label for="input_breakfast" class="col-sm-2 col-form-label">Frühstück: </label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="input_breakfast" placeholder="Frühstück">
+                            <!-- <div id="input_breakfast_selectedRecipe"></div> -->
+                            <ul id="input_breakfast_autocomplete" class="list-group"></ul>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="input_lunch" class="col-sm-2 col-form-label">Mittagessen: </label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="input_lunch" placeholder="Mittagessen">
+                            <ul id="input_lunch_autocomplete" class="list-group"></ul>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="input_dinner" class="col-sm-2 col-form-label">Abendessen: </label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="input_dinner" placeholder="Abendessen">
+                            <ul id="input_dinner_autocomplete" class="list-group"></ul>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="input_date" class="col-sm-2 col-form-label">Datum: </label>
+                        <div class="col-sm-10">
+                            <input type="date" class="form-control" id="input_date">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <button type="submit" class="btn btn-primary" id="new_item_submit">Abschicken</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section id="recipe_section" class="hidden">
+
+            <!-- Filter zum Definieren der darzustellenden Informationen -->
+            <section id="recipe_filter_div" class="card">
+                <div class="card-body">
+                    <form class="form-inline">
+                        <label class="sr-only" for="filter_recipeName">Rezept Titel</label>
+                        <div class="input-group mb-2 mr-sm-2">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">Rezept Titel</div>
+                            </div>
+                            <input type="text" class="form-control" id="filter_recipeName" placeholder="Rezept Titel">
+                        </div>
+
+                    </form>
+                </div>
+            </section>
+
+            <!-- Bereich zum Anzeigen der ausgewählten Daten -->
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3>Liste der Rezepte</h3>
+                        <ul id="recipe_list_out" class="list-group">
+                            <p>Es konnten keine Daten geladen werden</p>
+                        </ul>
+                        <button type="button" class="btn btn-primary" id="new_recipe_button">Neues Rezept</button>
+                    </div>
+                    <div class="col-md-6" >
+                        <h3>Ausgewähltes Rezept</h3>
+                        <div id="recipe_data_out">
+                            <p>Es wurde noch kein Rezept ausgewählt</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form zum Erstellen eines neuen Tags -->
+        <section id="new_recipe_section" class="hidden">
+            <div class="container">
+
+                <h5>Neues Rezept anlegen</h5>
+                <form>
+                    <div class="form-group row">
+                        <label for="input_recipe_title" class="col-sm-2 col-form-label">Rezept Titel: </label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="input_recipe_title" placeholder="Rezept Titel">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="input_recipe_ingredients" class="col-sm-2 col-form-label">Zutaten:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="input_recipe_ingredients" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="input_recipe_directions" class="col-sm-2 col-form-label">Zubereitung:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="input_recipe_directions" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="input_recipe_nutritions" class="col-sm-2 col-form-label">Nährwerte:</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="input_recipe_nutritions" rows="3"></textarea>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Optionen: </label>
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="input_check_vegan">
+                                <label class="form-check-label" for="input_check_vegan">🌱🌱 Vegan</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="input_check_vegetarian">
+                                <label class="form-check-label" for="input_check_vegetarian">🌱🥚 Vegetarisch</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="input_check_glutenFree">
+                                <label class="form-check-label" for="input_check_glutenFree">🌾🚫 ohne Gluten</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="input_check_lactoseFree">
+                                <label class="form-check-label" for="input_check_lactoseFree">🥛🚫 ohne Laktose</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Tageszeit: </label>
+                        <div class="col-sm-10">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="input_check_breakfast"
+                                    value="Breakfast">
+                                <label class="form-check-label" for="input_check_breakfast">Breakfast</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="input_check_lunch" value="Lunch">
+                                <label class="form-check-label" for="input_check_lunch">Lunch</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="input_check_dinner" value="Dinner">
+                                <label class="form-check-label" for="input_check_dinner">Dinner</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <button type="submit" class="btn btn-primary" id="new_recipe_submit">Rezept
+                                speichern</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer mit zusätzlichen Informationen -->
+    <footer class="footer mt-auto py-3">
+        <span class="text-muted">© Meal Planner 2020</span>
+    </footer>
+</body>
+
+</html>
