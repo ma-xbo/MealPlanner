@@ -1,11 +1,11 @@
 window.addEventListener('load', evt => {
-    //define default hash
+    // Setzen des Hashs zum Darstellen der Standardseite
     window.location.hash = '#mealplan';
 
-    //Filter der Ansicht 'Mealplan' setzen (Datum in die input Felder eintragen)
+    // Filter der Ansicht 'Mealplan' setzen (Datum in die input Felder eintragen)
     mealplanFilterSetup();
 
-    //Laden der Daten des Backend
+    // Laden der Daten des Backend
     loadContent_mealdata(document.getElementById('filter_startdate').value, document.getElementById('filter_enddate').value);
     loadContent_recipedata();
 
@@ -69,12 +69,16 @@ window.addEventListener('load', evt => {
     document.getElementById('new_recipe_button').addEventListener('click', showNewRecipeForm);
     document.getElementById('new_recipe_submit').addEventListener('click', submitNewRecipeForm);
     document.getElementById('input_breakfast').addEventListener('input', filterRecipeNewBreakfast);
+    document.getElementById('input_breakfast_resetButton').addEventListener('click', resetInputBreakfast);
     document.getElementById('input_lunch').addEventListener('input', filterRecipeNewLunch);
+    document.getElementById('input_lunch_resetButton').addEventListener('click', resetInputLunch);
     document.getElementById('input_dinner').addEventListener('input', filterRecipeNewDinner);
+    document.getElementById('input_dinner_resetButton').addEventListener('click', resetInputDinner);
 });
 
 /* Essensplan Übersicht */
 /* ------------------------------------------------------------ */
+
 /* Funktion zum Laden der Meal Informationen -> Was gibt es heute zu essen */
 function mealplanFilterSetup() {
     const dateStart = new Date();
@@ -124,7 +128,7 @@ function loadContent_mealdata(startDate, endDate) {
         .catch(err => displayErrorMessage(err))
 }
 
-/*  */
+/* Funktion zum Erstellen der Elemente  */
 function createContent_mealdata(data) {
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const itemDate = new Date(data.date);
@@ -195,7 +199,8 @@ function showNewMealForm() {
 
 /* New Mealplan Form*/
 /* ------------------------------------------------------------ */
-/* Vorgeschlagene Rezepte für den Input Frühstück */
+
+/* Vorgeschlagene Rezepte für den Input Breakfast */
 function filterRecipeNewBreakfast(e) {
     if (e.target.value !== "") {
 
@@ -210,11 +215,10 @@ function filterRecipeNewBreakfast(e) {
                         recipe.mealTime = JSON.parse(recipe.mealTime);
 
                         if (recipe.mealTime.breakfast === true) {
-                            createAutocompleteElements_breakfast(recipe)
+                            createAutocompleteElements_breakfast(recipe);
                         }
                     })
-                }
-                else {
+                } else {
                     document.getElementById('input_breakfast_autocomplete').innerHTML = '<p>Es wurde kein Rezept gefunden</p>';
                 }
 
@@ -222,7 +226,7 @@ function filterRecipeNewBreakfast(e) {
             .catch(err => displayErrorMessage(err))
 
     } else {
-        document.getElementById('input_breakfast_autocomplete').innerHTML = '';
+        resetInputBreakfast();
     }
 
     function createAutocompleteElements_breakfast(recipe) {
@@ -239,17 +243,33 @@ function filterRecipeNewBreakfast(e) {
         li.innerText = recipe.name + mealOptionsString;
 
         li.addEventListener('click', (evt) => {
-            document.getElementById('input_breakfast').value = recipe.name;
-            //document.getElementById('input_breakfast_selectedRecipe').innerHTML = '<button>hello</button>'
+            const breakfastInput = document.getElementById('input_breakfast');
 
+            // Setzen des ausgewählte Rezepttitels, der RezeptID (als Datenattribut) und disabled für den Input
             //https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes
-            document.getElementById('input_breakfast').setAttribute("data-recipeid", recipe.id);
+            breakfastInput.value = recipe.name;
+            breakfastInput.setAttribute('data-recipeid', recipe.id);
+            breakfastInput.disabled = true;
+
+            document.getElementById('input_breakfast_resetButton').disabled = false;
 
             document.getElementById('input_breakfast_autocomplete').innerHTML = '';
         })
 
         document.getElementById('input_breakfast_autocomplete').appendChild(li);
     }
+}
+
+/* Löschen des ausgewählten Rezepts für den Input Breakfast */
+function resetInputBreakfast() {
+    document.getElementById('input_breakfast_resetButton').disabled = true;
+
+    const breakfastInput = document.getElementById('input_breakfast');
+    breakfastInput.removeAttribute('data-recipeid');
+    breakfastInput.disabled = false;
+    breakfastInput.value = "";
+
+    document.getElementById('input_breakfast_autocomplete').innerHTML = '';
 }
 
 /* Vorgeschlagene Rezepte für den Input Mittagessen */
@@ -279,7 +299,7 @@ function filterRecipeNewLunch(e) {
             .catch(err => displayErrorMessage(err))
 
     } else {
-        document.getElementById('input_lunch_autocomplete').innerHTML = '';
+        resetInputLunch();
     }
 
     function createAutocompleteElements_lunch(recipe) {
@@ -296,17 +316,33 @@ function filterRecipeNewLunch(e) {
         li.innerText = recipe.name + mealOptionsString;
 
         li.addEventListener('click', (evt) => {
-            document.getElementById('input_lunch').value = recipe.name;
-            //document.getElementById('input_breakfast_selectedRecipe').innerHTML = '<button>hello</button>'
+            const lunchInput = document.getElementById('input_lunch');
 
+            // Setzen des ausgewählte Rezepttitels, der RezeptID (als Datenattribut) und disabled für den Input
             //https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes
-            document.getElementById('input_lunch').setAttribute("data-recipeid", recipe.id);
+            lunchInput.value = recipe.name;
+            lunchInput.setAttribute("data-recipeid", recipe.id);
+            lunchInput.disabled = true;
+
+            document.getElementById('input_lunch_resetButton').disabled = false;
 
             document.getElementById('input_lunch_autocomplete').innerHTML = '';
         })
 
         document.getElementById('input_lunch_autocomplete').appendChild(li);
     }
+}
+
+/* Löschen des ausgewählten Rezepts für den Input Lunch */
+function resetInputLunch() {
+    document.getElementById('input_lunch_resetButton').disabled = true;
+
+    const lunchInput = document.getElementById('input_lunch');
+    lunchInput.removeAttribute('data-recipeid');
+    lunchInput.disabled = false;
+    lunchInput.value = "";
+
+    document.getElementById('input_lunch_autocomplete').innerHTML = '';
 }
 
 /* Vorgeschlagene Rezepte für den Input Abendessen  */
@@ -336,7 +372,7 @@ function filterRecipeNewDinner(e) {
             .catch(err => displayErrorMessage(err))
 
     } else {
-        document.getElementById('input_dinner_autocomplete').innerHTML = ''
+        resetInputDinner();
     }
 
     function createAutocompleteElements_dinner(recipe) {
@@ -353,11 +389,14 @@ function filterRecipeNewDinner(e) {
         li.innerText = recipe.name + mealOptionsString;
 
         li.addEventListener('click', (evt) => {
-            document.getElementById('input_dinner').value = recipe.name;
-            //document.getElementById('input_breakfast_selectedRecipe').innerHTML = '<button>hello</button>'
+            const dinnerInput = document.getElementById('input_dinner');
 
             //https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes
-            document.getElementById('input_dinner').setAttribute("data-recipeid", recipe.id);
+            dinnerInput.value = recipe.name;
+            dinnerInput.setAttribute("data-recipeid", recipe.id);
+            dinnerInput.disabled = true;
+
+            document.getElementById('input_dinner_resetButton').disabled = false;
 
             document.getElementById('input_dinner_autocomplete').innerHTML = '';
         })
@@ -366,9 +405,22 @@ function filterRecipeNewDinner(e) {
     }
 }
 
+/* Löschen des ausgewählten Rezepts für den Input Dinner */
+function resetInputDinner() {
+    document.getElementById('input_dinner_resetButton').disabled = true;
+
+    const dinnerInput = document.getElementById('input_dinner');
+    dinnerInput.removeAttribute('data-recipeid');
+    dinnerInput.disabled = false;
+    dinnerInput.value = "";
+
+    document.getElementById('input_dinner_autocomplete').innerHTML = '';
+}
+
 /* Rezept Übersicht */
 /* ------------------------------------------------------------ */
-/*  */
+
+/* Funktion zum Laden aller Rezepte */
 function loadContent_recipedata() {
     fetch('api/recipedata')
         .then(res => res.json())
@@ -569,56 +621,86 @@ function displayErrorMessage(errorMessage) {
     setTimeout(() => err_out.removeChild(div), 5000)
 }
 
-/*  TODO -> recipeId einbinden */
+/*  TODO -> recipeId einbinden, Form überprüfen */
 /* Funktion zum Absenden des Formulars */
 function submitNewMealForm(evt) {
     evt.preventDefault();
 
-    // Senden des Einträge an das Backend
+
+    const breakfastInput = document.getElementById('input_breakfast');
+    const lunchInput = document.getElementById('input_lunch');
+    const dinnerInput = document.getElementById('input_dinner');
+
+    // Auslesen der Inputs
     const dateValue = document.getElementById('input_date').value;
-    const breakfastValue = document.getElementById('input_breakfast').value;
-    const lunchValue = document.getElementById('input_lunch').value;
-    const dinnerValue = document.getElementById('input_dinner').value;
+    const breakfastValue = breakfastInput.value;
+    const lunchValue = lunchInput.value;
+    const dinnerValue = dinnerInput.value;
 
-    fetch('api/mealdata', {
-        method: 'POST',
-        body: JSON.stringify({
-            "date": dateValue,
-            "breakfast": {
-                "recipeId": "",
-                "name": breakfastValue
-            },
-            "lunch": {
-                "recipeId": "",
-                "name": lunchValue
+    // Auslesen der data attributes der inputs
+    //https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes
+    let breakfastRecipeId = "";
+    let lunchRecipeId = "";
+    let dinnerRecipeId = "";
 
-            },
-            "dinner": {
-                "recipeId": "",
-                "name": dinnerValue
-            }
-        }),
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-        .then(res => {
-            if (res.status === 200) {
-                // Zurücksetzen der Eingabefelder
-                document.getElementById('input_date').value = '';
-                document.getElementById('input_breakfast').value = '';
-                document.getElementById('input_lunch').value = '';
-                document.getElementById('input_dinner').value = '';
+    if (breakfastInput.hasAttribute('data-recipeid')) {
+        breakfastRecipeId = breakfastInput.dataset.recipeid;
+    }
 
-                // Hash Navigation auf Seite "Meal Plan"
-                window.location.hash = '#mealplan';
-            }
-            else {
-                res.text()
-                    .then(responseText => displayErrorMessage('Response: [' + res.status + '] ' + res.statusText + ' - ' + responseText))
+    if (lunchInput.hasAttribute('data-recipeid')) {
+        lunchRecipeId = lunchInput.dataset.recipeid;
+    }
+
+    if (dinnerInput.hasAttribute('data-recipeid')) {
+        dinnerRecipeId = dinnerInput.dataset.recipeid;
+    }
+
+    if (Date.parse(dateValue)) {
+        // Daten an den Server senden
+        fetch('api/mealdata', {
+            method: 'POST',
+            body: JSON.stringify({
+                "date": dateValue,
+                "breakfast": {
+                    "recipeId": breakfastRecipeId,
+                    "name": breakfastValue
+                },
+                "lunch": {
+                    "recipeId": lunchRecipeId,
+                    "name": lunchValue
+
+                },
+                "dinner": {
+                    "recipeId": dinnerRecipeId,
+                    "name": dinnerValue
+                }
+            }),
+            headers: {
+                "Content-Type": "application/json"
             }
         })
-        .catch(err => displayErrorMessage(err))
+            // Verarbeiten der Antwort des Backends
+            .then(res => {
+                if (res.status === 200) {
+                    // Zurücksetzen der Eingabefelder
+                    document.getElementById('input_date').value = '';
+                    document.getElementById('input_breakfast').value = '';
+                    document.getElementById('input_lunch').value = '';
+                    document.getElementById('input_dinner').value = '';
+
+                    // Hash Navigation auf Seite "Meal Plan"
+                    window.location.hash = '#mealplan';
+                }
+                else {
+                    res.text()
+                        .then(responseText => displayErrorMessage('Response: [' + res.status + '] ' + res.statusText + ' - ' + responseText))
+                }
+            })
+            .catch(err => displayErrorMessage(err))
+    }
+    else{
+        displayErrorMessage("Bitte füllen Sie alle Felder aus");
+    }
 }
 
 /* Funktion zum Einblenden der Form NewRecipe*/

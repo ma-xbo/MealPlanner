@@ -85,8 +85,13 @@
                     <div class="form-group row">
                         <label for="input_breakfast" class="col-sm-2 col-form-label">Frühstück: </label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="input_breakfast" placeholder="Frühstück">
-                            <!-- <div id="input_breakfast_selectedRecipe"></div> -->
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="input_breakfast" placeholder="Frühstück">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger"
+                                        id="input_breakfast_resetButton" disabled>Remove</button>
+                                </div>
+                            </div>
                             <ul id="input_breakfast_autocomplete" class="list-group"></ul>
                         </div>
                     </div>
@@ -94,7 +99,13 @@
                     <div class="form-group row">
                         <label for="input_lunch" class="col-sm-2 col-form-label">Mittagessen: </label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="input_lunch" placeholder="Mittagessen">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="input_lunch" placeholder="Mittagessen">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger" id="input_lunch_resetButton"
+                                        disabled>Remove</button>
+                                </div>
+                            </div>
                             <ul id="input_lunch_autocomplete" class="list-group"></ul>
                         </div>
                     </div>
@@ -102,7 +113,13 @@
                     <div class="form-group row">
                         <label for="input_dinner" class="col-sm-2 col-form-label">Abendessen: </label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="input_dinner" placeholder="Abendessen">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="input_dinner" placeholder="Abendessen">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger" id="input_dinner_resetButton"
+                                        disabled>Remove</button>
+                                </div>
+                            </div>
                             <ul id="input_dinner_autocomplete" class="list-group"></ul>
                         </div>
                     </div>
