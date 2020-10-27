@@ -133,6 +133,8 @@ function createContent_mealdata(data) {
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const itemDate = new Date(data.date);
 
+    console.log(data);
+
     /* Erstellen der Layout Div's */
     const colDiv = document.createElement('div');
     colDiv.classList.add('col-xl-3');
@@ -155,9 +157,27 @@ function createContent_mealdata(data) {
     cardBreakfastTitle.classList.add('card-title');
     cardBreakfastTitle.innerText = "Frühstück:";
 
-    const cardBreakfastData = document.createElement('p');
-    cardBreakfastData.classList.add('card-text');
-    cardBreakfastData.innerText = data.breakfast.name;
+    const cardBreakfastData = document.createElement('span');
+    cardBreakfastData.classList.add('dp-inline');
+    const brRecipeName = document.createElement('p');
+    brRecipeName.classList.add('card-text');
+    brRecipeName.innerText = data.breakfast.name;
+    cardBreakfastData.appendChild(brRecipeName);
+
+    if (data.breakfast.recipeId !== "") {
+        const brRecipeLink = document.createElement('a');
+        brRecipeLink.classList.add('card-link');
+        brRecipeLink.innerText = 'view';
+        brRecipeLink.addEventListener('click', () => {
+            showWebComponent(data.breakfast.recipeId);
+        });
+
+        cardBreakfastData.appendChild(brRecipeLink);
+    }
+
+
+    cardBodyDiv.appendChild(cardBreakfastTitle);
+    cardBodyDiv.appendChild(cardBreakfastData);
 
     /* Mittagessen Content */
     const cardLunchTitle = document.createElement('h5');
@@ -168,6 +188,9 @@ function createContent_mealdata(data) {
     cardLunchData.classList.add('card-text');
     cardLunchData.innerText = data.lunch.name;
 
+    cardBodyDiv.appendChild(cardLunchTitle);
+    cardBodyDiv.appendChild(cardLunchData);
+
     /* Abendessen Content */
     const cardDinnerTitle = document.createElement('h5');
     cardDinnerTitle.classList.add('card-title');
@@ -177,16 +200,13 @@ function createContent_mealdata(data) {
     cardDinnerData.classList.add('card-text');
     cardDinnerData.innerText = data.dinner.name;
 
+    cardBodyDiv.appendChild(cardDinnerTitle);
+    cardBodyDiv.appendChild(cardDinnerData);
+
     /* "Zusammenbauen" */
     colDiv.appendChild(cardDiv);
     cardDiv.appendChild(cardHeaderDiv);
     cardDiv.appendChild(cardBodyDiv);
-    cardBodyDiv.appendChild(cardBreakfastTitle);
-    cardBodyDiv.appendChild(cardBreakfastData);
-    cardBodyDiv.appendChild(cardLunchTitle);
-    cardBodyDiv.appendChild(cardLunchData);
-    cardBodyDiv.appendChild(cardDinnerTitle);
-    cardBodyDiv.appendChild(cardDinnerData);
 
     document.getElementById('mealplan_data_out').appendChild(colDiv);
 }
@@ -621,11 +641,9 @@ function displayErrorMessage(errorMessage) {
     setTimeout(() => err_out.removeChild(div), 5000)
 }
 
-/*  TODO -> recipeId einbinden, Form überprüfen */
 /* Funktion zum Absenden des Formulars */
 function submitNewMealForm(evt) {
     evt.preventDefault();
-
 
     const breakfastInput = document.getElementById('input_breakfast');
     const lunchInput = document.getElementById('input_lunch');
@@ -698,7 +716,7 @@ function submitNewMealForm(evt) {
             })
             .catch(err => displayErrorMessage(err))
     }
-    else{
+    else {
         displayErrorMessage("Bitte füllen Sie alle Felder aus");
     }
 }
@@ -775,3 +793,120 @@ function submitNewRecipeForm(evt) {
         })
         .catch(err => displayErrorMessage(err))
 }
+
+
+/* Web Component Demo */
+/* ------------------------------------------------------------ */
+function showWebComponent(recipeId) {
+    const recipeDetail = document.createElement('recipe-detail');
+    recipeDetail.setAttribute('data-recipeid', recipeId);
+
+    document.getElementById('meal_section').appendChild(recipeDetail);
+}
+
+// Erstellen der Klasse "RecipeDetail" für das Beispiel Web Components
+//https://www.carlrippon.com/creating-a-modal-dialog-web-component/
+class RecipeDetail extends HTMLElement {
+    constructor() {
+        super();
+
+        // Erstellen einer ShadowRoot, Einbinden der Bootstrap CSS Datei
+        this.attachShadow({ mode: 'open' }).innerHTML = '<link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">';
+    }
+
+    // Lifecycle Methode: Element geladen
+    connectedCallback() {
+
+        // Auslesen der Rezept ID basierend auf dem Data-Attribut
+        const recipeId = this.getAttribute('data-recipeid');
+
+        // Daten für das Rezept mit der ID X am Server anfragen
+        fetch('api/recipedata/id/' + recipeId)
+            .then(res => res.json())
+            .then(recipe => {
+
+                const cardDiv = document.createElement('div');
+                cardDiv.classList.add('card');
+
+                const cardTitle_recipe = document.createElement('div');
+                cardTitle_recipe.classList.add('card-header');
+                cardTitle_recipe.innerText = recipe[0].name;
+
+
+                const list = document.createElement('ul');
+                list.classList.add('list-group');
+                list.classList.add('list-group-flush');
+
+                /*  Ingredients */
+                const listItem_ingredients = document.createElement('li');
+                listItem_ingredients.classList.add('list-group-item');
+
+                const listItemDiv_ingredients = document.createElement('div');
+
+                const listItemTitle_ingredients = document.createElement('h5');
+                listItemTitle_ingredients.innerText = 'Zutaten:';
+
+                const listItemText_ingredients = document.createElement('p');
+                listItemText_ingredients.innerText = recipe[0].ingredients;
+
+                listItemDiv_ingredients.appendChild(listItemTitle_ingredients);
+                listItemDiv_ingredients.appendChild(listItemText_ingredients);
+
+                listItem_ingredients.appendChild(listItemDiv_ingredients);
+
+                /*  Directions */
+                const listItem_directions = document.createElement('li');
+                listItem_directions.classList.add('list-group-item');
+
+                const listItemDiv_directions = document.createElement('div');
+
+                const listItemTitle_directions = document.createElement('h5');
+                listItemTitle_directions.innerText = 'Zubereitung:';
+
+                const listItemText_directions = document.createElement('p');
+                listItemText_directions.innerText = recipe[0].directions;
+
+                listItemDiv_directions.appendChild(listItemTitle_directions);
+                listItemDiv_directions.appendChild(listItemText_directions);
+
+                listItem_directions.appendChild(listItemDiv_directions);
+
+                /*  Nutritions */
+                const listItem_nutritions = document.createElement('li');
+                listItem_nutritions.classList.add('list-group-item');
+
+                const listItemDiv_nutritions = document.createElement('div');
+
+                const listItemTitle_nutritions = document.createElement('h5');
+                listItemTitle_nutritions.innerText = 'Nährstoffe:';
+
+                const listItemText_nutritions = document.createElement('p');
+                listItemText_nutritions.innerText = recipe[0].nutritions;
+
+                listItemDiv_nutritions.appendChild(listItemTitle_nutritions);
+                listItemDiv_nutritions.appendChild(listItemText_nutritions);
+
+                listItem_nutritions.appendChild(listItemDiv_nutritions);
+
+
+                /* End */
+                list.appendChild(listItem_ingredients);
+                list.appendChild(listItem_directions);
+                list.appendChild(listItem_nutritions);
+
+                cardDiv.appendChild(cardTitle_recipe);
+                cardDiv.appendChild(list);
+
+                this.shadowRoot.append(cardDiv);
+            })
+            .catch(err => alert(err))
+    }
+
+
+    /*         const template = document.getElementById('recipe-detail-template');
+            const shadowRoot = this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true)); */
+
+}
+
+// Registrieren des Custom Element "RecipeDetail" in der CustomElementRegistry
+customElements.define('recipe-detail', RecipeDetail);

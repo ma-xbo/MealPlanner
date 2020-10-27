@@ -40,6 +40,16 @@ router.get('/:filterValue', (req, res) => {
 
 })
 
+// Zurückgeben der gefilterten Werte
+router.get('/id/:recipeId', (req, res) => {
+
+    // Auslesen des Werts mit der angefragten ID
+    Recipe.find({ "id": req.params.recipeId })
+        .then(recipe => res.status(200).type("json").send(recipe))
+        .catch(err => res.sendStatus(404).send("Rezepte wurde nicht gefunden"))
+
+})
+
 /* Erstellen eines neuen Eintrags */
 router.post('/', (req, res) => {
     console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
