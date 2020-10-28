@@ -276,14 +276,46 @@
     <template id="recipe-detail-template">
         <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
         <style>
-
+            .backgroundStyle {
+                background-color: #767676e6;
+                z-index: 100;
+                padding: 5%;
+                position: fixed;
+                top: 0;
+                width: 100%;
+                height: 100%;
+            }
         </style>
-        <div class="card">
-            <div class="card-header"></div>
-            <ul class="list-group list-group-flush">
 
-            </ul>
+        <div class="backgroundStyle">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="d-inline align-middle" id="recipeName">Dummy Name</h3>
+                    <button class="btn btn-outline-secondary d-inline align-middle float-right" id="closeButton">Close</button>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <div>
+                            <h5>Zutaten:</h5>
+                            <p id="recipeIngredients"></p>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div>
+                            <h5>Zubereitung:</h5>
+                            <p id="recipeDirections"></p>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <div>
+                            <h5>Nährstoffe:</h5>
+                            <p id="recipeNutritions"></p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
+
     </template>
 
     <!-- JavaScript Files -->

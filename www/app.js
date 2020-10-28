@@ -805,17 +805,17 @@ function showWebComponent(recipeId) {
 }
 
 // Erstellen der Klasse "RecipeDetail" für das Beispiel Web Components
-//https://www.carlrippon.com/creating-a-modal-dialog-web-component/
 class RecipeDetail extends HTMLElement {
     constructor() {
         super();
 
-        // Erstellen einer ShadowRoot, Einbinden der Bootstrap CSS Datei
-        this.attachShadow({ mode: 'open' }).innerHTML = '<link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">';
     }
 
     // Lifecycle Methode: Element geladen
     connectedCallback() {
+        // Erstellen einer ShadowRoot, Einbinden der Bootstrap CSS Datei
+        this.attachShadow({ mode: 'open' }).innerHTML = '<link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css"><style>.backgroundStyle{background-color: black;            z-index: 100;        }</style';
+
 
         // Auslesen der Rezept ID basierend auf dem Data-Attribut
         const recipeId = this.getAttribute('data-recipeid');
@@ -824,6 +824,12 @@ class RecipeDetail extends HTMLElement {
         fetch('api/recipedata/id/' + recipeId)
             .then(res => res.json())
             .then(recipe => {
+
+                const backgroundDiv = document.createElement('div');
+                backgroundDiv.classList.add('backgroundStyle');
+
+                const cardWrapperDiv = document.createElement('div');
+                cardWrapperDiv.classList.add('col-12');
 
                 const cardDiv = document.createElement('div');
                 cardDiv.classList.add('card');
@@ -897,7 +903,11 @@ class RecipeDetail extends HTMLElement {
                 cardDiv.appendChild(cardTitle_recipe);
                 cardDiv.appendChild(list);
 
-                this.shadowRoot.append(cardDiv);
+                cardWrapperDiv.appendChild(cardDiv);
+
+                backgroundDiv.appendChild(cardWrapperDiv)
+
+                this.shadowRoot.append(backgroundDiv);
             })
             .catch(err => alert(err))
     }
@@ -908,5 +918,43 @@ class RecipeDetail extends HTMLElement {
 
 }
 
+// Erstellen der Klasse "RecipeDetailTemplate" für das Beispiel Web Components unter Verwendung eines HTML Templates
+class RecipeDetailTemplate extends HTMLElement {
+    /* Konstruktor der Klasse */
+    constructor() {
+        super();
+    }
+
+    /*  */
+    connectedCallback() {
+        this._render();
+    }
+
+    _render() {
+        const template = document.getElementById('recipe-detail-template').content;
+        const shadowRoot = this.attachShadow({ mode: "closed" });
+        shadowRoot.appendChild(template.cloneNode(true));
+
+        // Auslesen der Rezept ID basierend auf dem Data-Attribut
+        const recipeId = this.getAttribute('data-recipeid');
+
+        // Daten für das Rezept mit der ID X am Server anfragen
+        fetch('api/recipedata/id/' + recipeId)
+            .then(res => res.json())
+            .then(recipe => {
+                /* Anzeigen der Daten */
+                shadowRoot.getElementById('recipeName').innerText = recipe[0].name;
+                shadowRoot.getElementById('recipeIngredients').innerText = recipe[0].ingredients;
+                shadowRoot.getElementById('recipeDirections').innerText = recipe[0].directions;
+                shadowRoot.getElementById('recipeNutritions').innerText = recipe[0].nutritions;
+            })
+
+        /* Funktion des Close Button -> Löschen aus Light DOM */
+        shadowRoot.getElementById('closeButton').addEventListener('click', () => {
+            this.remove();
+        });
+    }
+}
+
 // Registrieren des Custom Element "RecipeDetail" in der CustomElementRegistry
-customElements.define('recipe-detail', RecipeDetail);
+customElements.define('recipe-detail', RecipeDetailTemplate);
