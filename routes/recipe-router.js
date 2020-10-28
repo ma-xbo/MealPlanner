@@ -70,12 +70,12 @@ router.post('/', (req, res) => {
         .finally(() => console.log("Response: " + "Status=" + res.statusCode))
 })
 
-/* TODO -> nicht implementiert */
-router.put('/:recipeId', (req, res) => {
+// TODO -> nicht implementiert
+/* router.put('/:recipeId', (req, res) => {
 
     const recipeId = req.params.recipeId;
 
-})
+}) */
 
 /* Löschen eines Werts */
 router.delete('/:recipeId', (req, res) => {

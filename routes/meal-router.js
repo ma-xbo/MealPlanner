@@ -34,7 +34,6 @@ router.get('/', (req, res) => {
     console.log("Response: " + "Status=" + res.statusCode);
 })
 
-/* TODO */
 // Zurückgeben aller Einträge in der definierten Zeitspanne
 router.get('/:startDate&:endDate/', (req, res) => {
     console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
@@ -49,12 +48,20 @@ router.get('/:startDate&:endDate/', (req, res) => {
         const startDate = new Date(startDateString);
         const endDate = new Date(endDateString);
 
-        /* TODO -> nur Daten des definierten Zeitraums auslesen */
         // Daten aus der Datenbank auslesen
         Meal.find()
             .then(data => {
+                const returnArray = [];
+
+                // Überprüfen, ob Elemente innerhalb des angefragten Zeitraums liegen
+                data.forEach(element => {
+                    if (element.date >= startDate && element.date <= endDate) {
+                        returnArray.push(element);
+                    }
+                });
+
                 // Senden des Response-Status 200 mit dem Response-Body
-                res.status(200).type("json").send(data).end();
+                res.status(200).type("json").send(returnArray).end();
             })
             .catch(err => res.sendStatus(404).send(err))
     }
@@ -66,9 +73,7 @@ router.get('/:startDate&:endDate/', (req, res) => {
     console.log("Response: " + "Status=" + res.statusCode);
 });
 
-
-/* In work */
-/* Erstellen eines neuen Tagesplans - Speichern in der Datenbank */
+// Erstellen eines neuen Tagesplans - Speichern in der Datenbank
 router.post('/', (req, res) => {
     console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
 
@@ -105,19 +110,21 @@ router.post('/', (req, res) => {
 
 /* ToDo */
 router.put('/:date', (req, res) => {
-    console.log("MealRouter Put method");
+    console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
+
     console.log(req.body);
 
     const dateString = req.params.date;
+
     if (Date.parse(dateString)) {
         const date = new Date(dateString);
-
         //Do something
     }
 
 })
 
-/* ToDo */
+/* ToDo --> Muss gestet werden */
+// Löschen eines angelegten Tagesplan
 router.delete('/:date', (req, res) => {
     console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
 
@@ -126,11 +133,9 @@ router.delete('/:date', (req, res) => {
     if (Date.parse(dateString)) {
         const date = new Date(dateString);
 
-        //Do something
-        //TODO
-        Konto.deleteOne({ "kontonummer": kontonummer })
-            .then(konto => res.end("Ok"))
-            .catch(err => res.sendStatus(404).end("Konto nicht gefunden"))
+        Meal.deleteOne({ "date": date })
+            .then(() => res.sendStatus(200))
+            .catch(err => res.status(500).send(err))
     }
     else {
         res.sendStatus(404).end("No valid date string");

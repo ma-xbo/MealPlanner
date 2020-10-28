@@ -135,7 +135,7 @@ function createContent_mealdata(data) {
 
     console.log(data);
 
-    /* Erstellen der Layout Div's */
+    // Erstellen der Layout Div's
     const colDiv = document.createElement('div');
     colDiv.classList.add('col-xl-3');
     colDiv.classList.add('col-lg-4');
@@ -152,21 +152,26 @@ function createContent_mealdata(data) {
     const cardBodyDiv = document.createElement('div');
     cardBodyDiv.classList.add('card-body');
 
-    /* Frühstück Content */
+    // Frühstück Content
     const cardBreakfastTitle = document.createElement('h5');
     cardBreakfastTitle.classList.add('card-title');
     cardBreakfastTitle.innerText = "Frühstück:";
 
-    const cardBreakfastData = document.createElement('span');
-    cardBreakfastData.classList.add('dp-inline');
+    const cardBreakfastData = document.createElement('div');
+    cardBreakfastData.classList.add('mb-3');
+    cardBreakfastData.classList.add('ml-1');
+
     const brRecipeName = document.createElement('p');
     brRecipeName.classList.add('card-text');
+    brRecipeName.classList.add('d-inline');
+    brRecipeName.classList.add('mr-1');
     brRecipeName.innerText = data.breakfast.name;
     cardBreakfastData.appendChild(brRecipeName);
 
     if (data.breakfast.recipeId !== "") {
         const brRecipeLink = document.createElement('a');
         brRecipeLink.classList.add('card-link');
+        brRecipeLink.classList.add('d-inline');
         brRecipeLink.innerText = 'view';
         brRecipeLink.addEventListener('click', () => {
             showWebComponent(data.breakfast.recipeId);
@@ -175,18 +180,36 @@ function createContent_mealdata(data) {
         cardBreakfastData.appendChild(brRecipeLink);
     }
 
-
     cardBodyDiv.appendChild(cardBreakfastTitle);
     cardBodyDiv.appendChild(cardBreakfastData);
 
-    /* Mittagessen Content */
+    // Mittagessen Content
     const cardLunchTitle = document.createElement('h5');
     cardLunchTitle.classList.add('card-title');
     cardLunchTitle.innerText = "Mittagessen:";
 
-    const cardLunchData = document.createElement('p');
-    cardLunchData.classList.add('card-text');
-    cardLunchData.innerText = data.lunch.name;
+    const cardLunchData = document.createElement('div');
+    cardLunchData.classList.add('mb-3');
+    cardLunchData.classList.add('ml-1');
+
+    const lunchRecipeName = document.createElement('p');
+    lunchRecipeName.classList.add('card-text');
+    lunchRecipeName.classList.add('d-inline');
+    lunchRecipeName.classList.add('mr-1');
+    lunchRecipeName.innerText = data.lunch.name;
+    cardLunchData.appendChild(lunchRecipeName);
+
+    if (data.lunch.recipeId !== "") {
+        const lunchRecipeLink = document.createElement('a');
+        lunchRecipeLink.classList.add('card-link');
+        lunchRecipeLink.classList.add('d-inline');
+        lunchRecipeLink.innerText = 'view';
+        lunchRecipeLink.addEventListener('click', () => {
+            showWebComponent(data.lunch.recipeId);
+        });
+
+        cardLunchData.appendChild(lunchRecipeLink);
+    }
 
     cardBodyDiv.appendChild(cardLunchTitle);
     cardBodyDiv.appendChild(cardLunchData);
@@ -196,9 +219,28 @@ function createContent_mealdata(data) {
     cardDinnerTitle.classList.add('card-title');
     cardDinnerTitle.innerText = "Abendessen:";
 
-    const cardDinnerData = document.createElement('p');
-    cardDinnerData.classList.add('card-text');
-    cardDinnerData.innerText = data.dinner.name;
+    const cardDinnerData = document.createElement('div');
+    cardDinnerData.classList.add('mb-3');
+    cardDinnerData.classList.add('ml-1');
+
+    const dinnerRecipeName = document.createElement('p');
+    dinnerRecipeName.classList.add('card-text');
+    dinnerRecipeName.classList.add('d-inline');
+    dinnerRecipeName.classList.add('mr-1');
+    dinnerRecipeName.innerText = data.dinner.name;
+    cardDinnerData.appendChild(dinnerRecipeName);
+
+    if (data.dinner.recipeId !== "") {
+        const dinnerRecipeLink = document.createElement('a');
+        dinnerRecipeLink.classList.add('card-link');
+        dinnerRecipeLink.classList.add('d-inline');
+        dinnerRecipeLink.innerText = 'view';
+        dinnerRecipeLink.addEventListener('click', () => {
+            showWebComponent(data.dinner.recipeId);
+        });
+
+        cardDinnerData.appendChild(dinnerRecipeLink);
+    }
 
     cardBodyDiv.appendChild(cardDinnerTitle);
     cardBodyDiv.appendChild(cardDinnerData);
@@ -464,7 +506,7 @@ function loadContent_recipedata() {
         .catch(err => displayErrorMessage(err))
 }
 
-/*  */
+/* Funktion zum Laden der Rezepte basierend auf dem eingegebenen Filter */
 function filterContent_recipedata(e) {
     fetch('api/recipedata/' + e.target.value)
         .then(res => res.json())
@@ -627,6 +669,7 @@ function createContent_recipedata(data) {
 
 /* Zusatzfunktionen */
 /* ------------------------------------------------------------ */
+
 /* Funktion zum Erstellen und Einblenden einer Fehlermeldung */
 function displayErrorMessage(errorMessage) {
     console.log(errorMessage)
@@ -797,6 +840,8 @@ function submitNewRecipeForm(evt) {
 
 /* Web Component Demo */
 /* ------------------------------------------------------------ */
+
+/* Erstellen und Anzeigen der Web Komponente */
 function showWebComponent(recipeId) {
     const recipeDetail = document.createElement('recipe-detail');
     recipeDetail.setAttribute('data-recipeid', recipeId);
@@ -925,7 +970,7 @@ class RecipeDetailTemplate extends HTMLElement {
         super();
     }
 
-    /*  */
+    /* Lifecycle Methode */
     connectedCallback() {
         this._render();
     }
