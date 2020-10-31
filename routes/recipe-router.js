@@ -70,12 +70,31 @@ router.post('/', (req, res) => {
         .finally(() => console.log("Response: " + "Status=" + res.statusCode))
 })
 
-// TODO -> nicht implementiert
-/* router.put('/:recipeId', (req, res) => {
+// Aktualisieren eines Werts 
+router.put('/:recipeId', async (req, res) => {
+    console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
 
-    const recipeId = req.params.recipeId;
+    // Heraussuchen des Dokuments mit der recipeId aus der Anfrage
+    Recipe.findOne({ "id": req.params.recipeId })
+        .then(recipe => {
 
-}) */
+            // Wurde ein Rezept mit der angegebenen ID gefunden, muss dieses mit den Daten aktualisiert werden
+            recipe.name = req.body.name;
+            recipe.directions = req.body.directions;
+            recipe.ingredients = req.body.ingredients;
+            recipe.nutritions = req.body.nutritions;
+            recipe.mealTime = JSON.stringify(req.body.mealTime);
+            recipe.mealOptions = JSON.stringify(req.body.mealOptions);
+
+            // Speichern des Dokuments mit den aktualisierten Daten 
+            recipe.save()
+                .then(() => res.sendStatus(200))
+                .catch(() => res.sendStatus(404).end("Das Rezept konnte nicht aktualisiert werden"))
+        })
+        .catch(() => res.sendStatus(404).end("Das Rezept konnte nicht aktualisiert werden"))
+        .finally(() => console.log("Response: " + "Status=" + res.statusCode))
+
+});
 
 /* Löschen eines Werts */
 router.delete('/:recipeId', (req, res) => {
@@ -86,7 +105,7 @@ router.delete('/:recipeId', (req, res) => {
 
     Recipe.deleteOne({ "id": recipeId })
         .then(recipe => res.status(200).type("json").send(recipe))
-        .catch(err => res.sendStatus(404).end("Konto nicht gefunden"))
+        .catch(() => res.sendStatus(404).end("Das Rezept konnte nicht gelöscht werden"))
         .finally(() => console.log("Response: " + "Status=" + res.statusCode))
 })
 

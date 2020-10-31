@@ -38,9 +38,14 @@ window.addEventListener('load', evt => {
             loadContent_recipedata();
         }
 
+        if (hashNavigationValue === "mealplan") {
+            loadContent_mealdata(document.getElementById('filter_startdate').value, document.getElementById('filter_enddate').value);
+        }
+
         // Heraussuchen der ElementID basierend auf den Einträgen in "views"
         const activeElementID = views.filter(el => el.hash === hashNavigationValue)[0].elementID;
 
+        /* Aus- bzw. Einblenden der Ansichten */
         for (let index = 0; index < views.length; index++) {
             if (views[index].elementID === activeElementID) {
                 //Prüfen ob element bereits activ ist, wenn nicht einblenden
@@ -128,7 +133,7 @@ function loadContent_mealdata(startDate, endDate) {
         .catch(err => displayErrorMessage(err))
 }
 
-/* Funktion zum Erstellen der Elemente  */
+/* Funktion zum Erstellen der Elemente für die Ansicht "mealplan"  */
 function createContent_mealdata(data) {
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const itemDate = new Date(data.date);
@@ -174,7 +179,7 @@ function createContent_mealdata(data) {
         brRecipeLink.classList.add('d-inline');
         brRecipeLink.innerText = 'view';
         brRecipeLink.addEventListener('click', () => {
-            showWebComponent(data.breakfast.recipeId);
+            showWebComponent_RecipeDetail(data.breakfast.recipeId);
         });
 
         cardBreakfastData.appendChild(brRecipeLink);
@@ -205,7 +210,7 @@ function createContent_mealdata(data) {
         lunchRecipeLink.classList.add('d-inline');
         lunchRecipeLink.innerText = 'view';
         lunchRecipeLink.addEventListener('click', () => {
-            showWebComponent(data.lunch.recipeId);
+            showWebComponent_RecipeDetail(data.lunch.recipeId);
         });
 
         cardLunchData.appendChild(lunchRecipeLink);
@@ -236,7 +241,7 @@ function createContent_mealdata(data) {
         dinnerRecipeLink.classList.add('d-inline');
         dinnerRecipeLink.innerText = 'view';
         dinnerRecipeLink.addEventListener('click', () => {
-            showWebComponent(data.dinner.recipeId);
+            showWebComponent_RecipeDetail(data.dinner.recipeId);
         });
 
         cardDinnerData.appendChild(dinnerRecipeLink);
@@ -251,12 +256,6 @@ function createContent_mealdata(data) {
     cardDiv.appendChild(cardBodyDiv);
 
     document.getElementById('mealplan_data_out').appendChild(colDiv);
-}
-
-/* Funktion zum Einblenden der Form */
-function showNewMealForm() {
-    // Hash Navigation auf Seite "Neuer Meal Plan"
-    window.location.hash = '#new-meal';
 }
 
 /* New Mealplan Form*/
@@ -479,6 +478,92 @@ function resetInputDinner() {
     document.getElementById('input_dinner_autocomplete').innerHTML = '';
 }
 
+/* Funktion zum Absenden des Formulars */
+function submitNewMealForm(evt) {
+    evt.preventDefault();
+
+    const breakfastInput = document.getElementById('input_breakfast');
+    const lunchInput = document.getElementById('input_lunch');
+    const dinnerInput = document.getElementById('input_dinner');
+
+    // Auslesen der Inputs
+    const dateValue = document.getElementById('input_date').value;
+    const breakfastValue = breakfastInput.value;
+    const lunchValue = lunchInput.value;
+    const dinnerValue = dinnerInput.value;
+
+    // Auslesen der data attributes der inputs
+    //https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes
+    let breakfastRecipeId = "";
+    let lunchRecipeId = "";
+    let dinnerRecipeId = "";
+
+    if (breakfastInput.hasAttribute('data-recipeid')) {
+        breakfastRecipeId = breakfastInput.dataset.recipeid;
+    }
+
+    if (lunchInput.hasAttribute('data-recipeid')) {
+        lunchRecipeId = lunchInput.dataset.recipeid;
+    }
+
+    if (dinnerInput.hasAttribute('data-recipeid')) {
+        dinnerRecipeId = dinnerInput.dataset.recipeid;
+    }
+
+    if (Date.parse(dateValue)) {
+        // Daten an den Server senden
+        fetch('api/mealdata', {
+            method: 'POST',
+            body: JSON.stringify({
+                "date": dateValue,
+                "breakfast": {
+                    "recipeId": breakfastRecipeId,
+                    "name": breakfastValue
+                },
+                "lunch": {
+                    "recipeId": lunchRecipeId,
+                    "name": lunchValue
+
+                },
+                "dinner": {
+                    "recipeId": dinnerRecipeId,
+                    "name": dinnerValue
+                }
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            // Verarbeiten der Antwort des Backends
+            .then(res => {
+                if (res.status === 200) {
+                    // Zurücksetzen der Eingabefelder
+                    document.getElementById('input_date').value = '';
+                    document.getElementById('input_breakfast').value = '';
+                    document.getElementById('input_lunch').value = '';
+                    document.getElementById('input_dinner').value = '';
+
+                    // Hash Navigation auf Seite "Meal Plan"
+                    window.location.hash = '#mealplan';
+                }
+                else {
+                    res.text()
+                        .then(responseText => displayErrorMessage('Response: [' + res.status + '] ' + res.statusText + ' - ' + responseText))
+                }
+            })
+            .catch(err => displayErrorMessage(err))
+    }
+    else {
+        displayErrorMessage("Bitte füllen Sie alle Felder aus");
+    }
+}
+
+/* Funktion zum Einblenden der Form */
+function showNewMealForm() {
+    // Hash Navigation auf Seite "Neuer Meal Plan"
+    window.location.hash = '#new-meal';
+}
+
 /* Rezept Übersicht */
 /* ------------------------------------------------------------ */
 
@@ -528,7 +613,7 @@ function filterContent_recipedata(e) {
         .catch(err => displayErrorMessage(err))
 }
 
-/* TODO -> Edit Button? */
+/* Funktion zum Erstellen der Elemente für die Auflistung der Rezepte in der Ansicht "recipe" */
 function createContent_recipedata(data) {
     const li = document.createElement('li');
     li.classList.add('list-group-item');
@@ -620,7 +705,7 @@ function createContent_recipedata(data) {
         const listItemDiv_options = document.createElement('div');
         listItemDiv_options.classList.add('float-right'); // Bootstrap Klasse
 
-
+        // Delete Button 
         const listItem_deleteButton = document.createElement('button');
         listItem_deleteButton.classList.add('mx-1'); // Bootstrap Klasse: "set the margin or padding to $spacer * .25"
         listItem_deleteButton.classList.add('btn');
@@ -637,16 +722,19 @@ function createContent_recipedata(data) {
         })
         listItem_deleteButton.innerText = "Delete";
 
-        /*         const listItem_editButton = document.createElement('button');
-                listItem_editButton.classList.add('mx-1');
-                listItem_editButton.classList.add('btn');
-                listItem_editButton.classList.add('btn-outline-secondary');
-                listItem_editButton.addEventListener('click', () => {
-                    alert('' + recipe.id)
-                })
-                listItem_editButton.innerText = "Edit"; 
-        
-                listItemDiv_options.appendChild(listItem_editButton);*/
+        const listItem_editButton = document.createElement('button');
+        listItem_editButton.classList.add('mx-1');
+        listItem_editButton.classList.add('btn');
+        listItem_editButton.classList.add('btn-outline-secondary');
+        listItem_editButton.addEventListener('click', () => {
+
+            // Komponenten für Edit Erstellen
+            document.getElementById('recipe_section').appendChild(showWebComponent_RecipeEdit(recipe.id));
+
+        })
+        listItem_editButton.innerText = "Edit";
+
+        listItemDiv_options.appendChild(listItem_editButton);
         listItemDiv_options.appendChild(listItem_deleteButton);
 
         listItem_options.appendChild(listItemDiv_options)
@@ -667,102 +755,8 @@ function createContent_recipedata(data) {
     }
 }
 
-/* Zusatzfunktionen */
+/* Neues Rezept anlegen */
 /* ------------------------------------------------------------ */
-
-/* Funktion zum Erstellen und Einblenden einer Fehlermeldung */
-function displayErrorMessage(errorMessage) {
-    console.log(errorMessage)
-    const err_out = document.getElementById('error_out');
-    const div = document.createElement('div');
-    div.classList.add('alert');
-    div.classList.add('alert-danger');
-    div.setAttribute('role', 'alert');
-    div.innerText = errorMessage;
-    err_out.appendChild(div);
-
-    setTimeout(() => err_out.removeChild(div), 5000)
-}
-
-/* Funktion zum Absenden des Formulars */
-function submitNewMealForm(evt) {
-    evt.preventDefault();
-
-    const breakfastInput = document.getElementById('input_breakfast');
-    const lunchInput = document.getElementById('input_lunch');
-    const dinnerInput = document.getElementById('input_dinner');
-
-    // Auslesen der Inputs
-    const dateValue = document.getElementById('input_date').value;
-    const breakfastValue = breakfastInput.value;
-    const lunchValue = lunchInput.value;
-    const dinnerValue = dinnerInput.value;
-
-    // Auslesen der data attributes der inputs
-    //https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes
-    let breakfastRecipeId = "";
-    let lunchRecipeId = "";
-    let dinnerRecipeId = "";
-
-    if (breakfastInput.hasAttribute('data-recipeid')) {
-        breakfastRecipeId = breakfastInput.dataset.recipeid;
-    }
-
-    if (lunchInput.hasAttribute('data-recipeid')) {
-        lunchRecipeId = lunchInput.dataset.recipeid;
-    }
-
-    if (dinnerInput.hasAttribute('data-recipeid')) {
-        dinnerRecipeId = dinnerInput.dataset.recipeid;
-    }
-
-    if (Date.parse(dateValue)) {
-        // Daten an den Server senden
-        fetch('api/mealdata', {
-            method: 'POST',
-            body: JSON.stringify({
-                "date": dateValue,
-                "breakfast": {
-                    "recipeId": breakfastRecipeId,
-                    "name": breakfastValue
-                },
-                "lunch": {
-                    "recipeId": lunchRecipeId,
-                    "name": lunchValue
-
-                },
-                "dinner": {
-                    "recipeId": dinnerRecipeId,
-                    "name": dinnerValue
-                }
-            }),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-            // Verarbeiten der Antwort des Backends
-            .then(res => {
-                if (res.status === 200) {
-                    // Zurücksetzen der Eingabefelder
-                    document.getElementById('input_date').value = '';
-                    document.getElementById('input_breakfast').value = '';
-                    document.getElementById('input_lunch').value = '';
-                    document.getElementById('input_dinner').value = '';
-
-                    // Hash Navigation auf Seite "Meal Plan"
-                    window.location.hash = '#mealplan';
-                }
-                else {
-                    res.text()
-                        .then(responseText => displayErrorMessage('Response: [' + res.status + '] ' + res.statusText + ' - ' + responseText))
-                }
-            })
-            .catch(err => displayErrorMessage(err))
-    }
-    else {
-        displayErrorMessage("Bitte füllen Sie alle Felder aus");
-    }
-}
 
 /* Funktion zum Einblenden der Form NewRecipe*/
 function showNewRecipeForm() {
@@ -838,133 +832,37 @@ function submitNewRecipeForm(evt) {
 }
 
 
+/* Zusatzfunktionen */
+/* ------------------------------------------------------------ */
+
+/* Funktion zum Erstellen und Einblenden einer Fehlermeldung */
+function displayErrorMessage(errorMessage) {
+    console.log(errorMessage)
+    const err_out = document.getElementById('error_out');
+    const div = document.createElement('div');
+    div.classList.add('alert');
+    div.classList.add('alert-danger');
+    div.setAttribute('role', 'alert');
+    div.innerText = errorMessage;
+    err_out.appendChild(div);
+
+    setTimeout(() => err_out.removeChild(div), 5000)
+}
+
+
 /* Web Component Demo */
 /* ------------------------------------------------------------ */
 
 /* Erstellen und Anzeigen der Web Komponente */
-function showWebComponent(recipeId) {
+function showWebComponent_RecipeDetail(recipeId) {
     const recipeDetail = document.createElement('recipe-detail');
     recipeDetail.setAttribute('data-recipeid', recipeId);
 
     document.getElementById('meal_section').appendChild(recipeDetail);
 }
 
-// Erstellen der Klasse "RecipeDetail" für das Beispiel Web Components
+// Erstellen der Klasse "RecipeDetail" für das Beispiel Web Components unter Verwendung eines HTML Templates
 class RecipeDetail extends HTMLElement {
-    constructor() {
-        super();
-
-    }
-
-    // Lifecycle Methode: Element geladen
-    connectedCallback() {
-        // Erstellen einer ShadowRoot, Einbinden der Bootstrap CSS Datei
-        this.attachShadow({ mode: 'open' }).innerHTML = '<link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css"><style>.backgroundStyle{background-color: black;            z-index: 100;        }</style';
-
-
-        // Auslesen der Rezept ID basierend auf dem Data-Attribut
-        const recipeId = this.getAttribute('data-recipeid');
-
-        // Daten für das Rezept mit der ID X am Server anfragen
-        fetch('api/recipedata/id/' + recipeId)
-            .then(res => res.json())
-            .then(recipe => {
-
-                const backgroundDiv = document.createElement('div');
-                backgroundDiv.classList.add('backgroundStyle');
-
-                const cardWrapperDiv = document.createElement('div');
-                cardWrapperDiv.classList.add('col-12');
-
-                const cardDiv = document.createElement('div');
-                cardDiv.classList.add('card');
-
-                const cardTitle_recipe = document.createElement('div');
-                cardTitle_recipe.classList.add('card-header');
-                cardTitle_recipe.innerText = recipe[0].name;
-
-
-                const list = document.createElement('ul');
-                list.classList.add('list-group');
-                list.classList.add('list-group-flush');
-
-                /*  Ingredients */
-                const listItem_ingredients = document.createElement('li');
-                listItem_ingredients.classList.add('list-group-item');
-
-                const listItemDiv_ingredients = document.createElement('div');
-
-                const listItemTitle_ingredients = document.createElement('h5');
-                listItemTitle_ingredients.innerText = 'Zutaten:';
-
-                const listItemText_ingredients = document.createElement('p');
-                listItemText_ingredients.innerText = recipe[0].ingredients;
-
-                listItemDiv_ingredients.appendChild(listItemTitle_ingredients);
-                listItemDiv_ingredients.appendChild(listItemText_ingredients);
-
-                listItem_ingredients.appendChild(listItemDiv_ingredients);
-
-                /*  Directions */
-                const listItem_directions = document.createElement('li');
-                listItem_directions.classList.add('list-group-item');
-
-                const listItemDiv_directions = document.createElement('div');
-
-                const listItemTitle_directions = document.createElement('h5');
-                listItemTitle_directions.innerText = 'Zubereitung:';
-
-                const listItemText_directions = document.createElement('p');
-                listItemText_directions.innerText = recipe[0].directions;
-
-                listItemDiv_directions.appendChild(listItemTitle_directions);
-                listItemDiv_directions.appendChild(listItemText_directions);
-
-                listItem_directions.appendChild(listItemDiv_directions);
-
-                /*  Nutritions */
-                const listItem_nutritions = document.createElement('li');
-                listItem_nutritions.classList.add('list-group-item');
-
-                const listItemDiv_nutritions = document.createElement('div');
-
-                const listItemTitle_nutritions = document.createElement('h5');
-                listItemTitle_nutritions.innerText = 'Nährstoffe:';
-
-                const listItemText_nutritions = document.createElement('p');
-                listItemText_nutritions.innerText = recipe[0].nutritions;
-
-                listItemDiv_nutritions.appendChild(listItemTitle_nutritions);
-                listItemDiv_nutritions.appendChild(listItemText_nutritions);
-
-                listItem_nutritions.appendChild(listItemDiv_nutritions);
-
-
-                /* End */
-                list.appendChild(listItem_ingredients);
-                list.appendChild(listItem_directions);
-                list.appendChild(listItem_nutritions);
-
-                cardDiv.appendChild(cardTitle_recipe);
-                cardDiv.appendChild(list);
-
-                cardWrapperDiv.appendChild(cardDiv);
-
-                backgroundDiv.appendChild(cardWrapperDiv)
-
-                this.shadowRoot.append(backgroundDiv);
-            })
-            .catch(err => alert(err))
-    }
-
-
-    /*         const template = document.getElementById('recipe-detail-template');
-            const shadowRoot = this.attachShadow({ mode: 'open' }).appendChild(template.content.cloneNode(true)); */
-
-}
-
-// Erstellen der Klasse "RecipeDetailTemplate" für das Beispiel Web Components unter Verwendung eines HTML Templates
-class RecipeDetailTemplate extends HTMLElement {
     /* Konstruktor der Klasse */
     constructor() {
         super();
@@ -993,6 +891,7 @@ class RecipeDetailTemplate extends HTMLElement {
                 shadowRoot.getElementById('recipeDirections').innerText = recipe[0].directions;
                 shadowRoot.getElementById('recipeNutritions').innerText = recipe[0].nutritions;
             })
+            .catch(err => displayErrorMessage(err))
 
         /* Funktion des Close Button -> Löschen aus Light DOM */
         shadowRoot.getElementById('closeButton').addEventListener('click', () => {
@@ -1002,4 +901,130 @@ class RecipeDetailTemplate extends HTMLElement {
 }
 
 // Registrieren des Custom Element "RecipeDetail" in der CustomElementRegistry
-customElements.define('recipe-detail', RecipeDetailTemplate);
+customElements.define('recipe-detail', RecipeDetail);
+
+
+
+
+
+
+
+function showWebComponent_RecipeEdit(recipeId) {
+    const recipeEditElement = document.createElement('recipe-edit');
+    recipeEditElement.setAttribute('data-recipeid', recipeId);
+
+    return recipeEditElement;
+}
+
+
+class RecipeEdit extends HTMLElement {
+    /* Konstruktor der Klasse */
+    constructor() {
+        super();
+    }
+
+    /* Lifecycle Methode */
+    connectedCallback() {
+        this._render();
+    }
+
+    _render() {
+        const template = document.getElementById('recipe-edit-template').content;
+        const shadowRoot = this.attachShadow({ mode: "closed" });
+        shadowRoot.appendChild(template.cloneNode(true));
+
+        // Auslesen der Rezept ID basierend auf dem Data-Attribut
+        const recipeId = this.getAttribute('data-recipeid');
+
+        // Daten für das Rezept mit der ID X am Server anfragen
+        fetch('api/recipedata/id/' + recipeId)
+            .then(res => res.json())
+            .then(recipe => {
+                recipe[0].mealOptions = JSON.parse(recipe[0].mealOptions);
+                recipe[0].mealTime = JSON.parse(recipe[0].mealTime);
+
+                /* Anzeigen der Daten */
+                shadowRoot.getElementById('input_recipe_title').value = recipe[0].name;
+                shadowRoot.getElementById('input_recipe_ingredients').value = recipe[0].ingredients;
+                shadowRoot.getElementById('input_recipe_directions').value = recipe[0].directions;
+                shadowRoot.getElementById('input_recipe_nutritions').value = recipe[0].nutritions;
+
+                shadowRoot.getElementById('input_check_breakfast').checked = recipe[0].mealTime.breakfast;
+                shadowRoot.getElementById('input_check_lunch').checked = recipe[0].mealTime.lunch;
+                shadowRoot.getElementById('input_check_dinner').checked = recipe[0].mealTime.dinner;
+
+                shadowRoot.getElementById('input_check_vegan').checked = recipe[0].mealOptions.vegan;
+                shadowRoot.getElementById('input_check_vegetarian').checked = recipe[0].mealOptions.vegetarian;
+                shadowRoot.getElementById('input_check_glutenFree').checked = recipe[0].mealOptions.glutenFree;
+                shadowRoot.getElementById('input_check_lactoseFree').checked = recipe[0].mealOptions.lactoseFree;
+
+            })
+            .catch(err => displayErrorMessage(err))
+
+        /* Funktion des Close Button -> Löschen aus Light DOM */
+        shadowRoot.getElementById('button_close').addEventListener('click', () => {
+            this.remove();
+        });
+
+        /* Funktion des Cancel Button -> Löschen aus Light DOM */
+        shadowRoot.getElementById('button_cancel').addEventListener('click', () => {
+            this.remove();
+        });
+
+        /* TODO Daten in der Datenbank updaten */
+        /* Funktion des Save Button -> Löschen aus Light DOM */
+        shadowRoot.getElementById('button_saveEdit').addEventListener('click', () => {
+            const titleValue = shadowRoot.getElementById('input_recipe_title').value;
+            const ingredientsValue = shadowRoot.getElementById('input_recipe_ingredients').value;
+            const directionsValue = shadowRoot.getElementById('input_recipe_directions').value;
+            const nutritionsValue = shadowRoot.getElementById('input_recipe_nutritions').value;
+
+            const breakfastBool = shadowRoot.getElementById('input_check_breakfast').checked;
+            const lunchBool = shadowRoot.getElementById('input_check_lunch').checked;
+            const dinnerBool = shadowRoot.getElementById('input_check_dinner').checked;
+
+            const veganBool = shadowRoot.getElementById('input_check_vegan').checked;
+            const vegetarianBool = shadowRoot.getElementById('input_check_vegetarian').checked;
+            const glutenFreeBool = shadowRoot.getElementById('input_check_glutenFree').checked;
+            const lactoseFreeBool = shadowRoot.getElementById('input_check_lactoseFree').checked;
+
+            fetch('api/recipedata/' + recipeId, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    "name": titleValue,
+                    "ingredients": ingredientsValue,
+                    "directions": directionsValue,
+                    "nutritions": nutritionsValue,
+                    "mealTime": {
+                        "breakfast": breakfastBool,
+                        "lunch": lunchBool,
+                        "dinner": dinnerBool
+                    },
+                    "mealOptions": {
+                        "vegan": veganBool,
+                        "vegetarian": vegetarianBool,
+                        "glutenFree": glutenFreeBool,
+                        "lactoseFree": lactoseFreeBool,
+                    }
+                }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(res => {
+                    if (res.status === 200) {
+                        this.remove();
+                        loadContent_recipedata();
+                    } else {
+                        res.text()
+                            .then(responseText => displayErrorMessage('Response: [' + res.status + '] ' + res.statusText + ' - ' + responseText))
+                    }
+                })
+                .catch(err => displayErrorMessage(err))
+
+        });
+    }
+}
+
+// Registrieren des Custom Element "RecipeEdit" in der CustomElementRegistry
+customElements.define('recipe-edit', RecipeEdit);

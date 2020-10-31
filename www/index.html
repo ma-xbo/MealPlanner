@@ -287,7 +287,7 @@
             }
         </style>
 
-        <div class="backgroundStyle">
+        <div class="backgroundStyle" id="backgroundDiv">
             <div class="card">
                 <div class="card-header">
                     <h3 class="d-inline align-middle" id="recipeName">Dummy Name</h3>
@@ -317,6 +317,138 @@
         </div>
 
     </template>
+
+
+
+
+
+
+
+
+    <!-- HTML Template für die Web Komponente "RecipeEdit" -->
+    <template id="recipe-edit-template">
+        <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+        <style>
+            .backgroundStyle {
+                background-color: #767676e6;
+                z-index: 100;
+                padding: 5%;
+                position: fixed;
+                top: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            @media (max-width: 576px ){
+                .card {
+                    top: 0;
+                    height: 100%;
+                    overflow-y: auto;
+                }
+            }
+        </style>
+
+        <div class="backgroundStyle" id="backgroundDiv">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="d-inline align-middle">Rezept Bearbeiten</h3>
+                        <button class="btn btn-outline-secondary d-inline float-right" id="button_close">Close</button>
+                </div>
+
+                <div class="card-body">
+                    <form>
+                        <div class="form-group row">
+                            <label for="input_recipe_title" class="col-sm-2 col-form-label">Rezept Titel: </label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="input_recipe_title"
+                                    placeholder="Rezept Titel">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="input_recipe_ingredients" class="col-sm-2 col-form-label">Zutaten:</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="input_recipe_ingredients" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="input_recipe_directions" class="col-sm-2 col-form-label">Zubereitung:</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="input_recipe_directions" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="input_recipe_nutritions" class="col-sm-2 col-form-label">Nährwerte:</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="input_recipe_nutritions" rows="3"></textarea>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Optionen: </label>
+                            <div class="col-sm-10">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="input_check_vegan">
+                                    <label class="form-check-label" for="input_check_vegan">🌱🌱 Vegan</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="input_check_vegetarian">
+                                    <label class="form-check-label" for="input_check_vegetarian">🌱🥚
+                                        Vegetarisch</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="input_check_glutenFree">
+                                    <label class="form-check-label" for="input_check_glutenFree">🌾🚫 ohne
+                                        Gluten</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="input_check_lactoseFree">
+                                    <label class="form-check-label" for="input_check_lactoseFree">🥛🚫 ohne
+                                        Laktose</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Tageszeit: </label>
+                            <div class="col-sm-10">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="input_check_breakfast"
+                                        value="Breakfast">
+                                    <label class="form-check-label" for="input_check_breakfast">Frühstück</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="input_check_lunch"
+                                        value="Lunch">
+                                    <label class="form-check-label" for="input_check_lunch">Mittagessen</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="input_check_dinner"
+                                        value="Dinner">
+                                    <label class="form-check-label" for="input_check_dinner">Abendessen</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <button type="button" class="btn btn-primary" id="button_saveEdit">Änderungen
+                                speichern</button>
+                            <button type="button" class="btn btn-secondary" id="button_cancel">Abbrechen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </template>
+
+
+
+
+
 
     <!-- JavaScript Files -->
     <script src="app.js"></script>
