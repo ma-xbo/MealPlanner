@@ -1,19 +1,19 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-// Erstellen einer Express Router Instanz
-const router = express.Router();
-
 // Erstellen eines neuen Schemas mit den definierten Feldern
 const mealSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
-    breakfast: String,  //Object muss stringified werden
-    lunch: String,      //Object muss stringified werden
-    dinner: String      //Object muss stringified werden
+    breakfast: { name: String, recipeId: String },
+    lunch: { name: String, recipeId: String },
+    dinner: { name: String, recipeId: String }
 });
 
 // Modell wird aus Schema erstellt
 const Meal = mongoose.model('Meal', mealSchema);
+
+// Erstellen einer Express Router Instanz
+const router = express.Router();
 
 // ------------------------------------------------------------
 // Routenhandler
@@ -86,12 +86,11 @@ router.post('/', (req, res) => {
                 console.log(err)
             } else {
                 if (!doc) {
-
                     const meal = new Meal({
                         "date": requestDate,
-                        "breakfast": JSON.stringify(req.body.breakfast),
-                        "lunch": JSON.stringify(req.body.lunch),
-                        "dinner": JSON.stringify(req.body.dinner),
+                        "breakfast": { name: req.body.breakfast.name, recipeId: req.body.breakfast.recipeId },
+                        "lunch": { name: req.body.lunch.name, recipeId: req.body.lunch.recipeId },
+                        "dinner": { name: req.body.dinner.name, recipeId: req.body.dinner.recipeId },
                     })
 
                     meal.save()
@@ -105,40 +104,6 @@ router.post('/', (req, res) => {
             }
         });
 
-    }
-})
-
-/* ToDo */
-router.put('/:date', (req, res) => {
-    console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
-
-    console.log(req.body);
-
-    const dateString = req.params.date;
-
-    if (Date.parse(dateString)) {
-        const date = new Date(dateString);
-        //Do something
-    }
-
-})
-
-/* ToDo --> Muss gestet werden */
-// Löschen eines angelegten Tagesplan
-router.delete('/:date', (req, res) => {
-    console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
-
-    const dateString = req.params.date;
-
-    if (Date.parse(dateString)) {
-        const date = new Date(dateString);
-
-        Meal.deleteOne({ "date": date })
-            .then(() => res.sendStatus(200))
-            .catch(err => res.status(500).send(err))
-    }
-    else {
-        res.sendStatus(404).end("No valid date string");
     }
 })
 

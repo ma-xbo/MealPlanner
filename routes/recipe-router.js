@@ -1,9 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-// Erstellen einer Express Router Instanz
-const router = express.Router();
-
 // Erstellen eines neuen Schemas mit den definierten Feldern
 const recipeSchema = new mongoose.Schema({
     id: String,
@@ -11,12 +8,15 @@ const recipeSchema = new mongoose.Schema({
     directions: String,
     ingredients: String,
     nutritions: String,
-    mealTime: String,
-    mealOptions: String
+    mealTime: { breakfast: Boolean, lunch: Boolean, dinner: Boolean },
+    mealOptions: { vegan: Boolean, vegetarian: Boolean, glutenFree: Boolean, lactoseFree: Boolean }
 });
 
 // Modell wird aus Schema erstellt
 const Recipe = mongoose.model('Recipe', recipeSchema);
+
+// Erstellen einer Express Router Instanz
+const router = express.Router();
 
 // ------------------------------------------------------------
 // Routenhandler
@@ -60,8 +60,18 @@ router.post('/', (req, res) => {
         "directions": req.body.directions,
         "ingredients": req.body.ingredients,
         "nutritions": req.body.nutritions,
-        "mealTime": JSON.stringify(req.body.mealTime),
-        "mealOptions": JSON.stringify(req.body.mealOptions),
+        "mealTime": {
+            breakfast: req.body.mealTime.breakfast,
+            lunch: req.body.mealTime.lunch,
+            dinner: req.body.mealTime.dinner
+        },
+        "mealOptions": {
+            vegan: req.body.mealOptions.vegan,
+            vegetarian: req.body.mealOptions.vegetarian,
+            glutenFree: req.body.mealOptions.glutenFree,
+            lactoseFree: req.body.mealOptions.lactoseFree
+        }
+
     })
 
     recipe.save()
@@ -78,13 +88,20 @@ router.put('/:recipeId', async (req, res) => {
     Recipe.findOne({ "id": req.params.recipeId })
         .then(recipe => {
 
-            // Wurde ein Rezept mit der angegebenen ID gefunden, muss dieses mit den Daten aktualisiert werden
+            // Wurde ein Rezept mit der angegebenen ID gefunden, müss dessen Daten aktualisiert werden
             recipe.name = req.body.name;
             recipe.directions = req.body.directions;
             recipe.ingredients = req.body.ingredients;
             recipe.nutritions = req.body.nutritions;
-            recipe.mealTime = JSON.stringify(req.body.mealTime);
-            recipe.mealOptions = JSON.stringify(req.body.mealOptions);
+
+            recipe.mealTime.breakfast = req.body.mealTime.breakfast;
+            recipe.mealTime.lunch = req.body.mealTime.lunch;
+            recipe.mealTime.dinner = req.body.mealTime.dinner;
+
+            recipe.mealOptions.vegan = req.body.mealOptions.vegan;
+            recipe.mealOptions.vegetarian = req.body.mealOptions.vegetarian;
+            recipe.mealOptions.glutenFree = req.body.mealOptions.glutenFree;
+            recipe.mealOptions.lactoseFree = req.body.mealOptions.lactoseFree;
 
             // Speichern des Dokuments mit den aktualisierten Daten 
             recipe.save()
@@ -104,7 +121,7 @@ router.delete('/:recipeId', (req, res) => {
     const recipeId = req.params.recipeId
 
     Recipe.deleteOne({ "id": recipeId })
-        .then(recipe => res.status(200).type("json").send(recipe))
+        .then(() => res.sendStatus(200))
         .catch(() => res.sendStatus(404).end("Das Rezept konnte nicht gelöscht werden"))
         .finally(() => console.log("Response: " + "Status=" + res.statusCode))
 })

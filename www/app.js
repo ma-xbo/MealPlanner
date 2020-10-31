@@ -111,13 +111,18 @@ function loadContent_mealdata(startDate, endDate) {
     fetch('api/mealdata/' + startDate + '&' + endDate)
         .then(res => res.json())
         .then(data => {
-            /* Anpassungen an den Daten */
+            // Aus dem String ein Date Element erstellen
             data.map(element => {
                 element.date = new Date(element.date);
-                element.breakfast = JSON.parse(element.breakfast);
-                element.lunch = JSON.parse(element.lunch);
-                element.dinner = JSON.parse(element.dinner);
             });
+
+            // Sortieren des Arrays nach dem Datum
+            data.sort(function (a, b) {
+                // Turn your strings into dates, and then subtract them
+                // to get a value that is either negative, positive, or zero.
+                return new Date(a.date) - new Date(b.date);
+            });
+
             return data;
         })
         .then(meals => {
@@ -137,8 +142,6 @@ function loadContent_mealdata(startDate, endDate) {
 function createContent_mealdata(data) {
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const itemDate = new Date(data.date);
-
-    console.log(data);
 
     // Erstellen der Layout Div's
     const colDiv = document.createElement('div');
@@ -272,12 +275,11 @@ function filterRecipeNewBreakfast(e) {
                 if (recipes.length > 0) {
                     document.getElementById('input_breakfast_autocomplete').innerHTML = "";
                     recipes.map((recipe) => {
-                        recipe.mealOptions = JSON.parse(recipe.mealOptions);
-                        recipe.mealTime = JSON.parse(recipe.mealTime);
 
                         if (recipe.mealTime.breakfast === true) {
                             createAutocompleteElements_breakfast(recipe);
                         }
+
                     })
                 } else {
                     document.getElementById('input_breakfast_autocomplete').innerHTML = '<p>Es wurde kein Rezept gefunden</p>';
@@ -344,12 +346,11 @@ function filterRecipeNewLunch(e) {
                 if (recipes.length > 0) {
                     document.getElementById('input_lunch_autocomplete').innerHTML = "";
                     recipes.map((recipe) => {
-                        recipe.mealOptions = JSON.parse(recipe.mealOptions);
-                        recipe.mealTime = JSON.parse(recipe.mealTime);
 
                         if (recipe.mealTime.lunch === true) {
                             createAutocompleteElements_lunch(recipe)
                         }
+
                     })
                 }
                 else {
@@ -417,12 +418,11 @@ function filterRecipeNewDinner(e) {
                 if (recipes.length > 0) {
                     document.getElementById('input_dinner_autocomplete').innerHTML = "";
                     recipes.map((recipe) => {
-                        recipe.mealOptions = JSON.parse(recipe.mealOptions);
-                        recipe.mealTime = JSON.parse(recipe.mealTime);
 
                         if (recipe.mealTime.dinner === true) {
                             createAutocompleteElements_dinner(recipe)
                         }
+
                     })
                 }
                 else {
@@ -539,9 +539,9 @@ function submitNewMealForm(evt) {
                 if (res.status === 200) {
                     // Zurücksetzen der Eingabefelder
                     document.getElementById('input_date').value = '';
-                    document.getElementById('input_breakfast').value = '';
-                    document.getElementById('input_lunch').value = '';
-                    document.getElementById('input_dinner').value = '';
+                    resetInputBreakfast();
+                    resetInputLunch();
+                    resetInputDinner();
 
                     // Hash Navigation auf Seite "Meal Plan"
                     window.location.hash = '#mealplan';
@@ -578,9 +578,6 @@ function loadContent_recipedata() {
             if (recipes.length > 0) {
                 document.getElementById('recipe_list_out').innerHTML = "";
                 recipes.map((recipe) => {
-                    recipe.mealOptions = JSON.parse(recipe.mealOptions);
-                    recipe.mealTime = JSON.parse(recipe.mealTime);
-
                     createContent_recipedata(recipe);
                 })
             }
@@ -600,9 +597,6 @@ function filterContent_recipedata(e) {
             if (recipes.length > 0) {
                 document.getElementById('recipe_list_out').innerHTML = "";
                 recipes.map((recipe) => {
-                    recipe.mealOptions = JSON.parse(recipe.mealOptions);
-                    recipe.mealTime = JSON.parse(recipe.mealTime);
-
                     createContent_recipedata(recipe);
                 })
             }
@@ -837,13 +831,15 @@ function submitNewRecipeForm(evt) {
 
 /* Funktion zum Erstellen und Einblenden einer Fehlermeldung */
 function displayErrorMessage(errorMessage) {
-    console.log(errorMessage)
+    //console.log(errorMessage)
     const err_out = document.getElementById('error_out');
+
     const div = document.createElement('div');
     div.classList.add('alert');
     div.classList.add('alert-danger');
     div.setAttribute('role', 'alert');
     div.innerText = errorMessage;
+
     err_out.appendChild(div);
 
     setTimeout(() => err_out.removeChild(div), 5000)
@@ -853,7 +849,7 @@ function displayErrorMessage(errorMessage) {
 /* Web Component Demo */
 /* ------------------------------------------------------------ */
 
-/* Erstellen und Anzeigen der Web Komponente */
+// Erstellen und Anzeigen der Web Komponente
 function showWebComponent_RecipeDetail(recipeId) {
     const recipeDetail = document.createElement('recipe-detail');
     recipeDetail.setAttribute('data-recipeid', recipeId);
@@ -904,11 +900,7 @@ class RecipeDetail extends HTMLElement {
 customElements.define('recipe-detail', RecipeDetail);
 
 
-
-
-
-
-
+// Erstellen und Zurückgeben der Web Component
 function showWebComponent_RecipeEdit(recipeId) {
     const recipeEditElement = document.createElement('recipe-edit');
     recipeEditElement.setAttribute('data-recipeid', recipeId);
@@ -916,7 +908,7 @@ function showWebComponent_RecipeEdit(recipeId) {
     return recipeEditElement;
 }
 
-
+// Klasse für Custom Element "RecipeEdit"
 class RecipeEdit extends HTMLElement {
     /* Konstruktor der Klasse */
     constructor() {
@@ -940,8 +932,6 @@ class RecipeEdit extends HTMLElement {
         fetch('api/recipedata/id/' + recipeId)
             .then(res => res.json())
             .then(recipe => {
-                recipe[0].mealOptions = JSON.parse(recipe[0].mealOptions);
-                recipe[0].mealTime = JSON.parse(recipe[0].mealTime);
 
                 /* Anzeigen der Daten */
                 shadowRoot.getElementById('input_recipe_title').value = recipe[0].name;
@@ -971,8 +961,7 @@ class RecipeEdit extends HTMLElement {
             this.remove();
         });
 
-        /* TODO Daten in der Datenbank updaten */
-        /* Funktion des Save Button -> Löschen aus Light DOM */
+        /* Funktion des Save Button -> Daten in der Datenbank updaten */
         shadowRoot.getElementById('button_saveEdit').addEventListener('click', () => {
             const titleValue = shadowRoot.getElementById('input_recipe_title').value;
             const ingredientsValue = shadowRoot.getElementById('input_recipe_ingredients').value;
@@ -1013,7 +1002,10 @@ class RecipeEdit extends HTMLElement {
             })
                 .then(res => {
                     if (res.status === 200) {
+                        // Schließen der Ansicht 
                         this.remove();
+
+                        // Daten für Seite recipe neu laden
                         loadContent_recipedata();
                     } else {
                         res.text()
