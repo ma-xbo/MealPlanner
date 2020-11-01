@@ -29,7 +29,7 @@ router.get('/', (req, res) => {
             // Senden des Response-Status 200 mit dem Response-Body
             res.status(200).type("json").send(data).end();
         })
-        .catch(err => res.sendStatus(404).send(err))
+        .catch(err => res.status(500).send(err))
 
     console.log("Response: " + "Status=" + res.statusCode);
 })
@@ -63,11 +63,11 @@ router.get('/:startDate&:endDate/', (req, res) => {
                 // Senden des Response-Status 200 mit dem Response-Body
                 res.status(200).type("json").send(returnArray).end();
             })
-            .catch(err => res.sendStatus(404).send(err))
+            .catch(err => res.status(500).send(err))
     }
     else {
         console.log("request parameters couldn't be converted to type Date")
-        res.status(404).send("Something went wrong...");
+        res.status(500).send("Something went wrong...");
     }
 
     console.log("Response: " + "Status=" + res.statusCode);

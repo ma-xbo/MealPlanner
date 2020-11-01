@@ -26,7 +26,7 @@ const router = express.Router();
 router.get('/', (req, res) => {
     Recipe.find()
         .then(recipe => res.status(200).type("json").send(recipe))
-        .catch(err => res.sendStatus(404).send("Rezepte wurde nicht gefunden"))
+        .catch(err => res.status(500).send("Rezepte wurde nicht gefunden"))
 
 })
 
@@ -36,8 +36,7 @@ router.get('/:filterValue', (req, res) => {
     // Regex zum Filtern der Werte
     Recipe.find({ "name": { "$regex": req.params.filterValue, "$options": "i" } })
         .then(recipe => res.status(200).type("json").send(recipe))
-        .catch(err => res.sendStatus(404).send("Rezepte wurde nicht gefunden"))
-
+        .catch(err => res.status(500).send("Rezepte wurde nicht gefunden"))
 })
 
 // Zurückgeben der gefilterten Werte
@@ -46,7 +45,7 @@ router.get('/id/:recipeId', (req, res) => {
     // Auslesen des Werts mit der angefragten ID
     Recipe.find({ "id": req.params.recipeId })
         .then(recipe => res.status(200).type("json").send(recipe))
-        .catch(err => res.sendStatus(404).send("Rezepte wurde nicht gefunden"))
+        .catch(err => res.status(500).send("Rezepte wurde nicht gefunden"))
 
 })
 
@@ -76,7 +75,7 @@ router.post('/', (req, res) => {
 
     recipe.save()
         .then(data => res.sendStatus(200))
-        .catch(err => res.sendStatus(500))
+        .catch(err => res.status(500).send(err))
         .finally(() => console.log("Response: " + "Status=" + res.statusCode))
 })
 
@@ -106,9 +105,9 @@ router.put('/:recipeId', async (req, res) => {
             // Speichern des Dokuments mit den aktualisierten Daten 
             recipe.save()
                 .then(() => res.sendStatus(200))
-                .catch(() => res.sendStatus(404).end("Das Rezept konnte nicht aktualisiert werden"))
+                .catch(() => res.sendStatus(500).end("Das Rezept konnte nicht aktualisiert werden"))
         })
-        .catch(() => res.sendStatus(404).end("Das Rezept konnte nicht aktualisiert werden"))
+        .catch(() => res.sendStatus(500).end("Das Rezept konnte nicht aktualisiert werden"))
         .finally(() => console.log("Response: " + "Status=" + res.statusCode))
 
 });
@@ -122,7 +121,7 @@ router.delete('/:recipeId', (req, res) => {
 
     Recipe.deleteOne({ "id": recipeId })
         .then(() => res.sendStatus(200))
-        .catch(() => res.sendStatus(404).end("Das Rezept konnte nicht gelöscht werden"))
+        .catch(() => res.status(500).send("Das Rezept konnte nicht gelöscht werden"))
         .finally(() => console.log("Response: " + "Status=" + res.statusCode))
 })
 
