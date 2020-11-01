@@ -77,14 +77,16 @@ router.get('/:startDate&:endDate/', (req, res) => {
 router.post('/', (req, res) => {
     console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
 
-    const requestDate = new Date(req.body.date);
-
-    if (Date.parse(requestDate)) {
+    // Überprüfen, ob die Zeichenkette von "date" in ein Datum-Objekt umgewandelt werden kann
+    if (Date.parse(req.body.date)) {
+        const requestDate = new Date(req.body.date);
 
         Meal.exists({ date: requestDate }, function (err, doc) {
             if (err) {
                 console.log(err)
-            } else {
+            }
+            else {
+                // Eintrag mit angefragtem Datum ist noch nicht vorhanden
                 if (!doc) {
                     const meal = new Meal({
                         "date": requestDate,
@@ -103,7 +105,6 @@ router.post('/', (req, res) => {
                 }
             }
         });
-
     }
 })
 
