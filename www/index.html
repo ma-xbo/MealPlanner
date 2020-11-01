@@ -194,21 +194,23 @@
                     <div class="form-group row">
                         <label for="input_recipe_ingredients" class="col-sm-2 col-form-label">Zutaten:</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" id="input_recipe_ingredients" rows="3"></textarea>
+                            <textarea class="form-control" id="input_recipe_ingredients"
+                                rows="3">Liste der Zutaten</textarea>
                         </div>
                     </div>
 
                     <div class="form-group row">
                         <label for="input_recipe_directions" class="col-sm-2 col-form-label">Zubereitung:</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" id="input_recipe_directions" rows="3"></textarea>
+                            <textarea class="form-control" id="input_recipe_directions" rows="3">Zubereitung</textarea>
                         </div>
                     </div>
 
                     <div class="form-group row">
                         <label for="input_recipe_nutritions" class="col-sm-2 col-form-label">Nährwerte:</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" id="input_recipe_nutritions" rows="3"></textarea>
+                            <textarea class="form-control" id="input_recipe_nutritions"
+                                rows="3">Liste der Nährwerte</textarea>
                         </div>
                     </div>
 
@@ -241,15 +243,15 @@
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" id="input_check_breakfast"
                                     value="Breakfast">
-                                <label class="form-check-label" for="input_check_breakfast">Breakfast</label>
+                                <label class="form-check-label" for="input_check_breakfast">Frühstück</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" id="input_check_lunch" value="Lunch">
-                                <label class="form-check-label" for="input_check_lunch">Lunch</label>
+                                <label class="form-check-label" for="input_check_lunch">Mittagessen</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" id="input_check_dinner" value="Dinner">
-                                <label class="form-check-label" for="input_check_dinner">Dinner</label>
+                                <label class="form-check-label" for="input_check_dinner">Abendessen</label>
                             </div>
                         </div>
                     </div>
@@ -318,13 +320,6 @@
 
     </template>
 
-
-
-
-
-
-
-
     <!-- HTML Template für die Web Komponente "RecipeEdit" -->
     <template id="recipe-edit-template">
         <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css">
@@ -339,7 +334,7 @@
                 height: 100%;
             }
 
-            @media (max-width: 576px ){
+            @media (max-width: 576px) {
                 .card {
                     top: 0;
                     height: 100%;
@@ -433,10 +428,13 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
-                            <button type="button" class="btn btn-primary" id="button_saveEdit">Änderungen
-                                speichern</button>
-                            <button type="button" class="btn btn-secondary" id="button_cancel">Abbrechen</button>
+                        <div class="form-group row-reverse">
+                            <div class="float-right">
+                                <button type="button" class="btn btn-secondary" id="button_saveEdit">Änderungen
+                                    speichern</button>
+                                <button type="button" class="btn btn-outline-secondary"
+                                    id="button_cancel">Abbrechen</button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -444,10 +442,6 @@
         </div>
 
     </template>
-
-
-
-
 
 
     <!-- JavaScript Files -->
