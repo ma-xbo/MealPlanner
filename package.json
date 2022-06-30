@@ -1,20 +1,21 @@
 {
   "name": "meal-planner",
-  "version": "0.0.1",
-  "description": "Website zum Verwalten von Essensplänen",
+  "version": "0.1.0",
+  "description": "Website zum Verwalten von Essensplaenen",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "author": "ma-xbo",
   "license": "ISC",
   "dependencies": {
-    "bootstrap": "^4.5.2",
-    "express": "^4.17.1",
-    "jquery": "^3.5.1",
-    "mongoose": "^5.10.1"
+    "bootstrap": "^4.6.1",
+    "express": "^4.18.1",
+    "jquery": "^3.6.0",
+    "mongoose": "^6.4.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.6"
+    "nodemon": "^2.0.18"
   }
 }
